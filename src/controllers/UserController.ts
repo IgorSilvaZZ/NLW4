@@ -1,12 +1,31 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { UserRepository } from '../repositories/UserRepository';
+import * as yup from 'yup';
+import { AppError } from '../errors/AppError';
 
 class UserController{
 
     async create(req: Request, res: Response){
 
         const { name, email } = req.body;
+
+        const schema = yup.object().shape({
+            name: yup.string().required("Nome é obrigátorio"),
+            email: yup.string().email().required("Email incorreto")
+        })
+
+        /* Primeira forma de validação */
+        /* if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: "Validation Failed!" })
+        } */
+
+        /* Segunda forma de validação */
+        try{
+            await schema.validate(req.body, { abortEarly: false });
+        }catch(err){
+            throw new AppError(err);
+        }
 
         const userRepository = getCustomRepository(UserRepository);
 
