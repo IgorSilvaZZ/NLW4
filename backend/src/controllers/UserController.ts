@@ -8,11 +8,12 @@ class UserController{
 
     async create(req: Request, res: Response){
 
-        const { name, email } = req.body;
+        const { name, email, password } = req.body;
 
         const schema = yup.object().shape({
             name: yup.string().required("Nome é obrigátorio"),
-            email: yup.string().email().required("Email incorreto")
+            email: yup.string().email().required("Email incorreto"),
+            password: yup.string().required('Senha é obrigátoria')
         })
 
         /* Primeira forma de validação */
@@ -35,9 +36,12 @@ class UserController{
             return res.status(400).send({ error: "User Already Exists" })
         }
 
+
+
         const user = userRepository.create({
             name,
-            email
+            email,
+            password
         })
 
         await userRepository.save(user);
